@@ -15,11 +15,9 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macos-latest]
+        # One native runner per architecture, built with CIBW_ARCHS=auto64
+        os: [ubuntu-latest, ubuntu-24.04-arm, windows-latest, windows-11-arm, macos-latest, macos-15-intel]
     steps:
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-        if: matrix.os == 'ubuntu-latest'
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v7
         with:
@@ -38,9 +36,7 @@ jobs:
           # cp312-win_amd64: workaround for chroma-core/chroma#2513.
           # win_arm64 < cp311: numpy has no win_arm64 wheels for these versions.
           CIBW_SKIP: "pp* *musllinux* cp312-win_amd64 cp39-win_arm64 cp310-win_arm64"
-          CIBW_ARCHS_MACOS: "x86_64 arm64"
-          CIBW_ARCHS_WINDOWS: auto64
-          CIBW_ARCHS_LINUX: "x86_64 aarch64"
+          CIBW_ARCHS: auto64
       - name: Upload artifacts
         uses: actions/upload-artifact@v7
         with:
